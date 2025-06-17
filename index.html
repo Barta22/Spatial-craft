@@ -16,60 +16,79 @@
       gap: 20px;
     }
 
-    model {
+    .model-placeholder, model {
       width: 100%;
       height: 300px;
       background-color: #ffffff;
       border-radius: 16px;
       box-shadow: 0 0 20px rgba(0,0,0,0.2);
+      overflow: hidden;
+    }
+
+    .model-placeholder img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
   </style>
 </head>
 <body>
 
-  <div class="grid-container">
-    <!-- First USDZ model -->
-    <model
-      stagemode="orbit"
-      src="Jasons pottery.usdz">
-      <img src="pottery-fallback.jpg" alt="Pottery fallback preview" style="width:100%; height:100%; object-fit:cover;">
-    </model>
+  <div class="grid-container" id="modelGrid">
+    <div class="model-placeholder" data-src="Jasons pottery.usdz" data-fallback="pottery-fallback.jpg" alt="Pottery fallback preview">
+      <img src="pottery-fallback.jpg" alt="Pottery fallback preview">
+    </div>
 
-    <!-- Second USDZ model -->
-    <model
-      stagemode="orbit"
-      src="AnotherModel.usdz">
-      <img src="another-fallback.jpg" alt="Another model fallback preview" style="width:100%; height:100%; object-fit:cover;">
-    </model>
+    <div class="model-placeholder" data-src="AnotherModel.usdz" data-fallback="another-fallback.jpg" alt="Another model fallback preview">
+      <img src="another-fallback.jpg" alt="Another model fallback preview">
+    </div>
 
-    <!-- Third USDZ model -->
-    <model
-      stagemode="orbit"
-      src="bowl 2.usdz">
-      <img src="another-fallback.jpg" alt="Another model fallback preview" style="width:100%; height:100%; object-fit:cover;">
-    </model>
+    <div class="model-placeholder" data-src="bowl 2.usdz" data-fallback="another-fallback.jpg" alt="Another model fallback preview">
+      <img src="another-fallback.jpg" alt="Another model fallback preview">
+    </div>
 
-    <!-- Fourth USDZ model -->
-    <model
-      stagemode="orbit"
-      src="Crystal bottle.usdz">
-      <img src="cup-fallback.jpg" alt="Cup fallback preview" style="width:100%; height:100%; object-fit:cover;">
-    </model>
+    <div class="model-placeholder" data-src="Crystal bottle.usdz" data-fallback="cup-fallback.jpg" alt="Cup fallback preview">
+      <img src="cup-fallback.jpg" alt="Cup fallback preview">
+    </div>
 
-    <!-- Fifth USDZ model -->
-    <model
-      stagemode="orbit"
-      src="vase 1.usdz">
-      <img src="vase-fallback.jpg" alt="Vase fallback preview" style="width:100%; height:100%; object-fit:cover;">
-    </model>
+    <div class="model-placeholder" data-src="vase 1.usdz" data-fallback="vase-fallback.jpg" alt="Vase fallback preview">
+      <img src="vase-fallback.jpg" alt="Vase fallback preview">
+    </div>
 
-    <!-- Sixth USDZ model -->
-    <model
-      stagemode="orbit"
-      src="vase 2.usdz">
-      <img src="plate-fallback.jpg" alt="Plate fallback preview" style="width:100%; height:100%; object-fit:cover;">
-    </model>
+    <div class="model-placeholder" data-src="vase 2.usdz" data-fallback="plate-fallback.jpg" alt="Plate fallback preview">
+      <img src="plate-fallback.jpg" alt="Plate fallback preview">
+    </div>
   </div>
+
+  <script>
+    // Lazy load models when they enter the viewport
+    const observer = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const container = entry.target;
+          const src = container.getAttribute('data-src');
+          const fallback = container.getAttribute('data-fallback');
+
+          const model = document.createElement('model');
+          model.setAttribute('stagemode', 'orbit');
+          model.setAttribute('src', src);
+
+          const img = document.createElement('img');
+          img.src = fallback;
+          img.alt = container.getAttribute('alt');
+          img.style.width = "100%";
+          img.style.height = "100%";
+          img.style.objectFit = "cover";
+
+          model.appendChild(img);
+          container.replaceWith(model);
+          obs.unobserve(container);
+        }
+      });
+    }, { rootMargin: '200px' });
+
+    document.querySelectorAll('.model-placeholder').forEach(el => observer.observe(el));
+  </script>
 
 </body>
 </html>
