@@ -2,35 +2,46 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>3D Models</title>
+  <title>3D Model Viewer</title>
   <style>
     body {
       background-color: transparent;
       font-family: sans-serif;
-      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px;
     }
 
-    .grid-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    #viewer {
+      width: 300px;
+      height: 300px;
+      border-radius: 16px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+      overflow: hidden;
+      position: relative;
+      background-color: #fff;
+    }
+
+    model {
+      width: 100%;
+      height: 100%;
+    }
+
+    .controls {
+      margin-top: 20px;
+      display: flex;
       gap: 20px;
     }
 
-    .model-placeholder, model {
-      width: 100%;
-      height: 300px;
-      background-color: transparent;
-      border-radius: 16px;
-      box-shadow: none;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .model-placeholder img,
-    model img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background-color: #444;
+      color: white;
     }
 
     .spinner {
@@ -44,7 +55,7 @@
       border-top: 4px solid #333;
       border-radius: 50%;
       animation: spin 1s linear infinite;
-      z-index: 2;
+      z-index: 1;
     }
 
     @keyframes spin {
@@ -55,70 +66,75 @@
 </head>
 <body>
 
-  <div class="grid-container" id="modelGrid">
-    <div class="model-placeholder" data-src="Jasons pottery.usdz" data-fallback="pottery-fallback.jpg" alt="Pottery fallback preview">
-      <div class="spinner"></div>
-      <img src="pottery-fallback.jpg" alt="Pottery fallback preview">
-    </div>
+  <div id="viewer">
+    <div class="spinner" id="loadingSpinner"></div>
+    <model id="modelViewer" stagemode="orbit">
+      <img src="pottery-fallback.jpg" alt="Model preview" style="width:100%; height:100%; object-fit:cover;">
+    </model>
+  </div>
 
-    <div class="model-placeholder" data-src="AnotherModel.usdz" data-fallback="another-fallback.jpg" alt="Another model fallback preview">
-      <div class="spinner"></div>
-      <img src="another-fallback.jpg" alt="Another model fallback preview">
-    </div>
-
-    <div class="model-placeholder" data-src="bowl 2.usdz" data-fallback="another-fallback.jpg" alt="Another model fallback preview">
-      <div class="spinner"></div>
-      <img src="another-fallback.jpg" alt="Another model fallback preview">
-    </div>
-
-    <div class="model-placeholder" data-src="Crystal bottle.usdz" data-fallback="cup-fallback.jpg" alt="Cup fallback preview">
-      <div class="spinner"></div>
-      <img src="cup-fallback.jpg" alt="Cup fallback preview">
-    </div>
-
-    <div class="model-placeholder" data-src="vase 1.usdz" data-fallback="vase-fallback.jpg" alt="Vase fallback preview">
-      <div class="spinner"></div>
-      <img src="vase-fallback.jpg" alt="Vase fallback preview">
-    </div>
-
-    <div class="model-placeholder" data-src="vase 2.usdz" data-fallback="plate-fallback.jpg" alt="Plate fallback preview">
-      <div class="spinner"></div>
-      <img src="plate-fallback.jpg" alt="Plate fallback preview">
-    </div>
+  <div class="controls">
+    <button onclick="prevModel()">Previous</button>
+    <button onclick="nextModel()">Next</button>
   </div>
 
   <script>
-    const observer = new IntersectionObserver((entries, obs) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const container = entry.target;
-          const src = container.getAttribute('data-src');
-          const fallback = container.getAttribute('data-fallback');
+    const models = [
+      { src: "Jasons pottery.usdz", fallback: "pottery-fallback.jpg", alt: "Pottery" },
+      { src: "AnotherModel.usdz", fallback: "another-fallback.jpg", alt: "Another model" },
+      { src: "bowl 2.usdz", fallback: "another-fallback.jpg", alt: "Bowl" },
+      { src: "Crystal bottle.usdz", fallback: "cup-fallback.jpg", alt: "Crystal bottle" },
+      { src: "vase 1.usdz", fallback: "vase-fallback.jpg", alt: "Vase 1" },
+      { src: "vase 2.usdz", fallback: "plate-fallback.jpg", alt: "Vase 2" }
+    ];
 
-          const model = document.createElement('model');
-          model.setAttribute('stagemode', 'orbit');
-          model.setAttribute('src', src);
+    let currentIndex = 0;
 
-          const img = document.createElement('img');
-          img.src = fallback;
-          img.alt = container.getAttribute('alt');
-          img.style.width = "100%";
-          img.style.height = "100%";
-          img.style.objectFit = "cover";
+    function showModel(index) {
+      const modelData = models[index];
+      const viewer = document.getElementById("viewer");
+      const spinner = document.getElementById("loadingSpinner");
 
-          model.appendChild(img);
+      spinner.style.display = "block";
 
-          // Replace placeholder after a slight delay for smoother UI
-          setTimeout(() => {
-            container.replaceWith(model);
-          }, 300); // Adjust if needed
+      // Remove old model
+      const oldModel = document.getElementById("modelViewer");
+      if (oldModel) oldModel.remove();
 
-          obs.unobserve(container);
-        }
-      });
-    }, { rootMargin: '200px' });
+      // Create new model element
+      const model = document.createElement("model");
+      model.setAttribute("id", "modelViewer");
+      model.setAttribute("stagemode", "orbit");
+      model.setAttribute("src", modelData.src);
 
-    document.querySelectorAll('.model-placeholder').forEach(el => observer.observe(el));
+      const img = document.createElement("img");
+      img.src = modelData.fallback;
+      img.alt = modelData.alt;
+      img.style.width = "100%";
+      img.style.height = "100%";
+      img.style.objectFit = "cover";
+
+      model.appendChild(img);
+      viewer.appendChild(model);
+
+      // Simulate model load time
+      setTimeout(() => {
+        spinner.style.display = "none";
+      }, 800); // You can adjust this if needed
+    }
+
+    function nextModel() {
+      currentIndex = (currentIndex + 1) % models.length;
+      showModel(currentIndex);
+    }
+
+    function prevModel() {
+      currentIndex = (currentIndex - 1 + models.length) % models.length;
+      showModel(currentIndex);
+    }
+
+    // Load the first model
+    showModel(currentIndex);
   </script>
 
 </body>
