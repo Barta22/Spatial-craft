@@ -19,16 +19,37 @@
     .model-placeholder, model {
       width: 100%;
       height: 300px;
-      background-color: #ffffff;
+      background-color: transparent;
       border-radius: 16px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+      box-shadow: none;
+      position: relative;
       overflow: hidden;
     }
 
-    .model-placeholder img {
+    .model-placeholder img,
+    model img {
       width: 100%;
       height: 100%;
       object-fit: cover;
+    }
+
+    .spinner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 40px;
+      height: 40px;
+      margin: -20px 0 0 -20px;
+      border: 4px solid #ccc;
+      border-top: 4px solid #333;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      z-index: 2;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
   </style>
 </head>
@@ -36,32 +57,37 @@
 
   <div class="grid-container" id="modelGrid">
     <div class="model-placeholder" data-src="Jasons pottery.usdz" data-fallback="pottery-fallback.jpg" alt="Pottery fallback preview">
+      <div class="spinner"></div>
       <img src="pottery-fallback.jpg" alt="Pottery fallback preview">
     </div>
 
     <div class="model-placeholder" data-src="AnotherModel.usdz" data-fallback="another-fallback.jpg" alt="Another model fallback preview">
+      <div class="spinner"></div>
       <img src="another-fallback.jpg" alt="Another model fallback preview">
     </div>
 
     <div class="model-placeholder" data-src="bowl 2.usdz" data-fallback="another-fallback.jpg" alt="Another model fallback preview">
+      <div class="spinner"></div>
       <img src="another-fallback.jpg" alt="Another model fallback preview">
     </div>
 
     <div class="model-placeholder" data-src="Crystal bottle.usdz" data-fallback="cup-fallback.jpg" alt="Cup fallback preview">
+      <div class="spinner"></div>
       <img src="cup-fallback.jpg" alt="Cup fallback preview">
     </div>
 
     <div class="model-placeholder" data-src="vase 1.usdz" data-fallback="vase-fallback.jpg" alt="Vase fallback preview">
+      <div class="spinner"></div>
       <img src="vase-fallback.jpg" alt="Vase fallback preview">
     </div>
 
     <div class="model-placeholder" data-src="vase 2.usdz" data-fallback="plate-fallback.jpg" alt="Plate fallback preview">
+      <div class="spinner"></div>
       <img src="plate-fallback.jpg" alt="Plate fallback preview">
     </div>
   </div>
 
   <script>
-    // Lazy load models when they enter the viewport
     const observer = new IntersectionObserver((entries, obs) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -81,7 +107,12 @@
           img.style.objectFit = "cover";
 
           model.appendChild(img);
-          container.replaceWith(model);
+
+          // Replace placeholder after a slight delay for smoother UI
+          setTimeout(() => {
+            container.replaceWith(model);
+          }, 300); // Adjust if needed
+
           obs.unobserve(container);
         }
       });
