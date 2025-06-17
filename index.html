@@ -2,112 +2,78 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>3D Model Viewer</title>
+  <title>3D Models Grid</title>
   <style>
     body {
       background-color: transparent;
       font-family: sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 40px;
+      padding: 20px;
     }
 
-    #viewer {
-      width: 300px;
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .model-card {
+      width: 100%;
       height: 300px;
+      background-color: #ffffff;
       border-radius: 16px;
       box-shadow: 0 0 20px rgba(0,0,0,0.2);
       overflow: hidden;
       position: relative;
-      background-color: #fff;
+      cursor: pointer;
     }
 
-    model {
+    .model-card img {
       width: 100%;
       height: 100%;
+      object-fit: cover;
+      display: block;
     }
 
-    .controls {
-      margin-top: 20px;
-      display: flex;
-      gap: 20px;
-    }
-
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      background-color: #444;
+    .model-card:hover::after {
+      content: "Tap to View in 3D";
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.6);
       color: white;
+      text-align: center;
+      padding: 10px;
+      font-size: 14px;
     }
   </style>
 </head>
 <body>
 
-  <div id="viewer">
-    <model id="modelViewer" stagemode="orbit">
-      <img src="pottery-fallback.jpg" alt="Model preview" style="width:100%; height:100%; object-fit:cover;">
-    </model>
+  <div class="grid-container">
+    <a class="model-card" href="Jasons pottery.usdz" rel="ar">
+      <img src="pottery-fallback.jpg" alt="Pottery Model Preview">
+    </a>
+
+    <a class="model-card" href="AnotherModel.usdz" rel="ar">
+      <img src="another-fallback.jpg" alt="Another Model Preview">
+    </a>
+
+    <a class="model-card" href="bowl 2.usdz" rel="ar">
+      <img src="another-fallback.jpg" alt="Bowl Preview">
+    </a>
+
+    <a class="model-card" href="Crystal bottle.usdz" rel="ar">
+      <img src="cup-fallback.jpg" alt="Crystal Bottle Preview">
+    </a>
+
+    <a class="model-card" href="vase 1.usdz" rel="ar">
+      <img src="vase-fallback.jpg" alt="Vase 1 Preview">
+    </a>
+
+    <a class="model-card" href="vase 2.usdz" rel="ar">
+      <img src="plate-fallback.jpg" alt="Vase 2 Preview">
+    </a>
   </div>
-
-  <div class="controls">
-    <button onclick="prevModel()">Previous</button>
-    <button onclick="nextModel()">Next</button>
-  </div>
-
-  <script>
-    const models = [
-      { src: "Jasons pottery.usdz", fallback: "pottery-fallback.jpg", alt: "Pottery" },
-      { src: "AnotherModel.usdz", fallback: "another-fallback.jpg", alt: "Another model" },
-      { src: "bowl 2.usdz", fallback: "another-fallback.jpg", alt: "Bowl" },
-      { src: "Crystal bottle.usdz", fallback: "cup-fallback.jpg", alt: "Crystal bottle" },
-      { src: "vase 1.usdz", fallback: "vase-fallback.jpg", alt: "Vase 1" },
-      { src: "vase 2.usdz", fallback: "plate-fallback.jpg", alt: "Vase 2" }
-    ];
-
-    let currentIndex = 0;
-
-    function showModel(index) {
-      const modelData = models[index];
-      const viewer = document.getElementById("viewer");
-
-      // Remove old model
-      const oldModel = document.getElementById("modelViewer");
-      if (oldModel) oldModel.remove();
-
-      // Create new model element
-      const model = document.createElement("model");
-      model.setAttribute("id", "modelViewer");
-      model.setAttribute("stagemode", "orbit");
-      model.setAttribute("src", modelData.src);
-
-      const img = document.createElement("img");
-      img.src = modelData.fallback;
-      img.alt = modelData.alt;
-      img.style.width = "100%";
-      img.style.height = "100%";
-      img.style.objectFit = "cover";
-
-      model.appendChild(img);
-      viewer.appendChild(model);
-    }
-
-    function nextModel() {
-      currentIndex = (currentIndex + 1) % models.length;
-      showModel(currentIndex);
-    }
-
-    function prevModel() {
-      currentIndex = (currentIndex - 1 + models.length) % models.length;
-      showModel(currentIndex);
-    }
-
-    // Load the first model
-    showModel(currentIndex);
-  </script>
 
 </body>
 </html>
